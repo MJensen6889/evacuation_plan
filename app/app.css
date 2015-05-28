@@ -246,6 +246,10 @@ a.accordion-toggle:hover {
     padding-top: 5px;
     padding-bottom: 5px;
     font-family: 'Comfortaa', cursive;
+    /*border-top: solid 2px orangered;*/
+    /*border-bottom: solid 2px orangered;*/
+    /*background-color: white;*/
+    /*color: orangered;*/
     color: orangered;
     padding-left: 0px !important;
     padding-right: 0px !important;
