@@ -224,9 +224,9 @@ a.accordion-toggle:hover {
     color: #616161;
     font-size: .90em;
     font-family: 'Comfortaa', cursive;
-    border-top: solid 2px orangered;
-    border-bottom: solid 2px orangered;
-    background-color: white;
+    /*border-top: solid 2px orangered;*/
+    /*border-bottom: solid 2px orangered;*/
+    /*background-color: white;*/
     margin-bottom: 15px;
     -o-transition:.3s;
     -ms-transition:.3s;
@@ -240,17 +240,12 @@ a.accordion-toggle:hover {
     color: white !important;
     /*font-size: 1.15em;*/
     background-color: orangered;
-    border-top: solid 2px orangered;
-    border-bottom: solid 2px orangered;
 }
 
 .nav-sep {
     padding-top: 5px;
     padding-bottom: 5px;
     font-family: 'Comfortaa', cursive;
-    border-top: solid 2px orangered;
-    border-bottom: solid 2px orangered;
-    background-color: white;
     color: orangered;
     padding-left: 0px !important;
     padding-right: 0px !important;
