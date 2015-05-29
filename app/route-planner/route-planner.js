@@ -1,6 +1,7 @@
 'use strict';
+var globalWaypoints = [];
 
-angular.module('myApp.route-planner', ['ngRoute'])
+angular.module('myApp.route-planner', ['ngRoute', 'restangular'])
 
     .config(['$routeProvider', function ($routeProvider) {
         $routeProvider.when('/route-planner', {
@@ -9,7 +10,7 @@ angular.module('myApp.route-planner', ['ngRoute'])
         });
     }])
 
-    .controller('RoutePlannerCtrl', ['$scope', 'GoogleMapApi'.ns(), function ($scope, GoogleMapApi) {
+    .controller('RoutePlannerCtrl', ['$scope', 'GoogleMapApi'.ns(), 'Restangular', function ($scope, GoogleMapApi, Restangular) {
 
         $scope.locations = [
             "Orem, UT",
@@ -19,7 +20,9 @@ angular.module('myApp.route-planner', ['ngRoute'])
 
 
         $scope.waypoints = [];
-
+        $scope.waypointNames = [];
+        $scope.currentMarkers = [];
+        $scope.myRoutes = [];
 
 //        $scope.input = document.getElementById('searchTextField');
 //        $scope.autoComplete = new google.maps.places.Autocomplete(input);
@@ -37,23 +40,86 @@ angular.module('myApp.route-planner', ['ngRoute'])
             var floatLong = parseFloat(splitLocation[1]);
 //            var locationObject = $scope.maps.Geocoder(placeString);
             var locationObject = new $scope.maps.LatLng(floatLat, floatLong);
+            globalWaypoints.push({location: locationObject});
+
             var location = {location: locationObject};
             $scope.waypoints.push(location);
+
+            $scope.$apply();
             $scope.calcRoute();
+
         };
 
-        $scope.deleteWaypoint = function (waypoint) {
+        $scope.addWaypointName = function(stringName) {
+//            var wwName = stringName;
+            $scope.waypointNames.push({name: stringName});
 
-            var index = $scope.waypoints.indexOf(waypoint);
+            $scope.$apply();
+//            console.log(place);
+//            console.log(place.name);
+//            console.log(place.vicinity);
+//            $scope.waypointNames.push({
+//                name: place.name,
+//                address: place.vicinity
+//            });
+//            $scope.$apply();
+//            $scope.addWaypointVic = function(vicString) {
+//                $scope.waypointNames.push({name: wwName, address: vicString});
+//                $scope.apply();
+//            };
+        };
+
+        $scope.deleteWaypoint = function (waypointName) {
+
+            var index = $scope.waypointNames.indexOf(waypointName);
             if (index > -1) {
                 $scope.waypoints.splice(index, 1);
+                globalWaypoints.splice(index, 1);
+                $scope.waypointNames.splice(index, 1);
                 $scope.calcRoute()
             }
         };
 
-        $scope.BankControl = function (controlDiv, map) {
+        var removeMarkers = function() {
+
+            if ($scope.currentMarkers) {
+                for (var i = 0; i < $scope.currentMarkers.length; i++) {
+                    var currentMarker = $scope.currentMarkers[i];
+                    currentMarker.setMap(null);
+                }
+            }
+
+            $scope.currentMarkers = [];
+        };
+
+        $scope.addMyRoute = function() {
+            var myRouteName = $scope.routeName;
+            var myRouteOrigin = $scope.start;
+            var myRouteDestination = $scope.end;
+            var myRouteWaypoints = [$scope.waypoints];
+            var myRouteWaypointNames = [$scope.waypointNames];
+            var myRouteTravelMode = $scope.travelMode;
+
+            var myRoute = {
+                name : myRouteName,
+                origin : myRouteOrigin,
+                destination : myRouteDestination,
+                waypoints : myRouteWaypoints,
+                waypoint_names : myRouteWaypointNames,
+                travel_mode : myRouteTravelMode
+            };
+//            $scope.myRoutes.push(myRouteName, myRouteOrigin, myRouteDestination, myRouteWaypoints);
+            Restangular.all('map-route/').customPOST(myRoute).then(function(data){
+
+            });
+
+
+        };
+
+        $scope.SearchControl = function (controlDiv, map, searchCategory, buttonName, buttonIcon) {
 
             controlDiv.style.padding = '5px';
+            controlDiv.index = 10;
 
             var controlUI = document.createElement('div');
             controlUI.style.backgroundColor = 'white';
@@ -61,7 +127,7 @@ angular.module('myApp.route-planner', ['ngRoute'])
             controlUI.style.borderWidth = '2px';
             controlUI.style.cursor = 'pointer';
             controlUI.style.textAlign = 'center';
-            controlUI.title = 'Click to find banks nearby';
+            controlUI.title = 'Click to find ' + buttonName +'s nearby';
             controlDiv.appendChild(controlUI);
 
             var controlText = document.createElement('div');
@@ -69,26 +135,27 @@ angular.module('myApp.route-planner', ['ngRoute'])
             controlText.style.fontSize = '12px';
             controlText.style.paddingLeft = '4px';
             controlText.style.paddingRight = '4px';
-            controlText.innerHTML = '<b>Bank</b>';
+            controlText.innerHTML = '<b><i class="' +buttonIcon + '"></i> ' +buttonName + '</b>';
             controlUI.appendChild(controlText);
 
 
-            $scope.maps.event.addDomListener(controlUI, 'click', function () {
-                var infowindow;
+            var registerButton = function(searchCategory) {
+
+                removeMarkers();
 
                 var newYork = new $scope.maps.LatLng(40.69847032728747, -73.9514422416687);
                 var center = $scope.map.getCenter();
                 var request = {
-
                     location: center,
                     radius: 50000,
-                    types: ['bank']
+                    types: [searchCategory]
                 };
                 $scope.infowindow = new $scope.maps.InfoWindow();
                 var service = new $scope.maps.places.PlacesService($scope.map);
                 service.nearbySearch(request, $scope.callback);
+            };
 
-            });
+            $scope.maps.event.addDomListener(controlUI, 'click', function() { registerButton(searchCategory.toLowerCase())} );
 
             $scope.callback = function (results, status) {
                 if (status == $scope.maps.places.PlacesServiceStatus.OK) {
@@ -105,16 +172,21 @@ angular.module('myApp.route-planner', ['ngRoute'])
                     position: place.geometry.location
                 });
 
+                $scope.currentMarkers.push(marker);
 
+//                console.log(place);
+//                var stringDict = JSON.stringify(place);
 
-
+//                console.log(stringDict);
                 var contentString =
                     place.name +
+                    '<div></div>' +
+                    place.vicinity +
                     '<div id="content">' +
                     '<div id="siteNotice">' +
                     '</div>' +
                     '<div id="bodyContent">' +
-                    '<button onclick="$(\'#bodyContent\').scope().addWaypoint(\'' + place.geometry.location + '\'); console.log(\'You clicked\')">Add</button>' +
+                    '<button onclick="$(\'#bodyContent\').scope().addWaypoint(\'' + place.geometry.location + '\'); $(\'#bodyContent\').scope().addWaypointName(\'' + place.name + '\'); console.log(\'You clicked\')">Add</button>' +
                     '</div>' +
                     '</div>';
 
@@ -127,12 +199,39 @@ angular.module('myApp.route-planner', ['ngRoute'])
 
         };
 
+        var createButtons = function() {
+            createButton('bank', 'Bank', 'fa fa-bank');
+            createButton('hospital', 'Hospital', 'fa fa-hospital-o');
+            createButton('church', 'Church', 'fa fa-fire');
+            createButton('pharmacy', 'Pharmacy', 'fa fa-medkit');
+            createButton('veterinary_care', 'Veterinarian', 'fa fa-paw');
+            createButton('grocery_or_supermarket', 'Grocery Store', 'fa fa-shopping-cart');
+            createButton('restaurant', 'Restaurant', 'fa fa-cutlery');
+            createButton('gas_station', 'Gas Station', 'fa fa-car');
+            createButton('airport', 'Airport', 'fa fa-plane');
+
+        };
+
+        var createButton = function(searchCategory, buttonName, buttonIcon) {
+            $scope.searchControlDiv = document.createElement('div');
+            $scope.searchControl = new $scope.SearchControl($scope.searchControlDiv, $scope.map, searchCategory, buttonName, buttonIcon);
+            $scope.searchControlDiv.index = 1;
+            $scope.map.controls[$scope.maps.ControlPosition.RIGHT_BOTTOM].push($scope.searchControlDiv);
+        };
+
 
         GoogleMapApi.then(function (maps) {
             $scope.maps = maps;
             console.log(maps);
             $scope.initialize();
         });
+
+        $scope.loadRoute = function() {
+            $scope.start = $scope.currentRoute.origin;
+            $scope.end = $scope.currentRoute.destination;
+            $scope.travelMode = $scope.maps.TravelMode[$scope.currentRoute.travel_mode];
+            $scope.calcRoute();
+        };
 
         $scope.initialize = function () {
 
@@ -148,25 +247,45 @@ angular.module('myApp.route-planner', ['ngRoute'])
             $scope.directionsDisplay = new $scope.maps.DirectionsRenderer($scope.rendererOptions);
             $scope.directionsService = new $scope.maps.DirectionsService();
 
-            $scope.travelModes = [
-                {
-                    name: "driving",
-                    value: $scope.maps.TravelMode.DRIVING
-                },
-                {
-                    name: "walking",
-                    value: $scope.maps.TravelMode.WALKING
-                },
-                {
-                    name: "bicycling",
-                    value: $scope.maps.TravelMode.BICYCLING
-                },
-                {
-                    name: "transit",
-                    value: $scope.maps.TravelMode.TRANSIT
-                }
+            $scope.carMode = function() {
+                $scope.travelMode = $scope.maps.TravelMode.DRIVING;
+                $scope.calcRoute();
+            };
 
-            ];
+            $scope.bikeMode = function() {
+                $scope.travelMode = $scope.maps.TravelMode.BICYCLING;
+                $scope.calcRoute();
+            };
+
+            $scope.walkMode = function() {
+                $scope.travelMode = $scope.maps.TravelMode.WALKING;
+                $scope.calcRoute();
+            };
+
+            $scope.transitMode = function() {
+                $scope.travelMode = $scope.maps.TravelMode.TRANSIT;
+                $scope.calcRoute();
+            };
+
+//            $scope.travelModes = [
+//                {
+//                    name: "Driving",
+//                    value: $scope.maps.TravelMode.DRIVING
+//                },
+//                {
+//                    name: "Walking",
+//                    value: $scope.maps.TravelMode.WALKING
+//                },
+//                {
+//                    name: "Bicycling",
+//                    value: $scope.maps.TravelMode.BICYCLING
+//                },
+//                {
+//                    name: "Transit",
+//                    value: $scope.maps.TravelMode.TRANSIT
+//                }
+//
+//            ];
 
 
             $scope.directionsDisplay = new $scope.maps.DirectionsRenderer($scope.rendererOptions);
@@ -184,15 +303,17 @@ angular.module('myApp.route-planner', ['ngRoute'])
 
             });
 
+            Restangular.all('map-route/').getList().then(function(data){
+                $scope.myRoutes = data;
+                console.log($scope.myRoutes);
+            });
 
-            $scope.bankControlDiv;
+            createButtons();
 
-            $scope.bankControlDiv = document.createElement('div');
-            $scope.bankControl = new $scope.BankControl($scope.bankControlDiv, $scope.map);
-            $scope.bankControlDiv.index = 1;
-            $scope.map.controls[$scope.maps.ControlPosition.TOP_RIGHT].push($scope.bankControlDiv);
+            $scope.searchControlDiv;
 
             $scope.calcRoute()
+
         };
 
         $scope.calcRoute = function () {
@@ -200,7 +321,7 @@ angular.module('myApp.route-planner', ['ngRoute'])
                 origin: $scope.start,
                 destination: $scope.end,
 //                travelMode: $scope.maps.TravelMode.DRIVING
-                waypoints: $scope.waypoints,
+                waypoints: globalWaypoints,
                 optimizeWaypoints: true,
                 travelMode: $scope.travelMode
             };
@@ -222,9 +343,8 @@ angular.module('myApp.route-planner', ['ngRoute'])
                 total += myroute.legs[i].distance.value;
             }
             total = total / 1000.0;
-            document.getElementById('total').innerHTML = total + 'km';
-        }
-
+                var totalMiles = total * 0.621371;
+            document.getElementById('total').innerHTML = totalMiles + ' mi - ' + total + ' km';
+        };
 
     }]);
-

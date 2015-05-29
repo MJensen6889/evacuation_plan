@@ -35,26 +35,137 @@
 }
 
 #map-canvas {
-    height: 400px !important;
-    width: 60% !important;
+    height: 600px !important;
+    width: 50% !important;
     margin: 0;
     padding: 0;
     display: inline-block;
 }
 
  #panel {
-        z-index: 5;
-        background-color: #fff;
-        padding: 5px;
-        border: 1px solid #999;
+    z-index: 5;
+    background-color: rgba(255,255,255,0.8);
+    padding: 1em;
+    /*border: .2em solid #999;*/
+    display: inline-block;
+    text-align: center;
+    font-family: Comfortaa;
+    color: #515151;
+ }
+
+ #map-inputs {
+     height: 600px;
+     width: 18%;
+     display: inline-block;
+     vertical-align: top;
+     /*text-align: left;*/
+     /*border: .1em solid #999;*/
+     /*padding: 1em;*/
+ }
+
+ #directionsTitle {
+     height: 60px;
+     width: 100%;
+     background-color: rgba(250, 250, 250, .8);
+     vertical-align:top;
+     padding-top: 0.1em;
  }
 
  #directionsPanel {
-     height: 400px;
-     width: 20%;
+     height: 520px;
+     width: 100%;
      display: inline-block;
      overflow: scroll;
+     vertical-align: top;
  }
+ #distancePanel{
+     height: 20px;
+     width: 100%;
+     vertical-align: bottom;
+     background-color: rgba(120, 120, 120, .4);
+ }
+
+ #dropdown {
+     font-size: 2em;
+ }
+
+ #title{
+     font-family: Comfortaa;
+     font-size: 6em;
+     text-align: center;
+     /*font-weight: bold;*/
+     color: rgba(0, 20, 173, .4);
+     background-color: rgba(255,255,255,0.8);
+ }
+
+ #titleMarker {
+     color: rgba(0, 20, 173, .4);
+ }
+
+ #ddPanel{
+     height: 600px;
+     width: 20%;
+     display: inline-block;
+     vertical-align: top;
+     /*border: .1em solid #999;*/
+     background-color: rgba(0, 20, 173, .1);
+     /*padding: 1em;*/
+
+ }
+
+ #modeDiv {
+     padding: 1em;
+     background-color: rgba(0, 20, 173, .4);
+ }
+
+ #startDiv {
+     /*border: .2em solid #008000;*/
+     padding: 1em;
+     background-color: rgba(0, 173, 26, .4);
+ }
+
+ #waypointsDiv {
+     /*border: .2em solid yellow;*/
+     padding: 1em;
+     background-color: rgba(255, 247, 0, .4);
+     overflow: scroll;
+     height: 10em;
+ }
+
+ #modeButtons {
+     font-size: 1.5em;
+     color: #008000;
+ }
+
+ #deleteWaypoint {
+     font-size: .9em;
+     color: #808080;
+ }
+
+ #deleteWaypoint:hover {
+     color: blue;
+ }
+
+ #wwDiv {
+     text-align: left;
+ }
+
+ #endDiv {
+     /*border: .2em solid red;*/
+     padding: 1em;
+     background-color: rgba(356, 100, 59, .4);
+ }
+
+ #saveButton{
+    font-size: 1.5em;
+     color: #008000;
+ }
+
+ #saveDiv {
+     padding: 1em;
+     background-color: rgba(0, 20, 173, .4);
+ }
+ 
 div.panel-heading {
     background-color: #ffffff !important;
     border-radius: 10px !important;
@@ -113,9 +224,9 @@ a.accordion-toggle:hover {
     color: #616161;
     font-size: .90em;
     font-family: 'Comfortaa', cursive;
-    border-top: solid 2px orangered;
-    border-bottom: solid 2px orangered;
-    background-color: white;
+    /*border-top: solid 2px orangered;*/
+    /*border-bottom: solid 2px orangered;*/
+    /*background-color: white;*/
     margin-bottom: 15px;
     -o-transition:.3s;
     -ms-transition:.3s;
@@ -129,17 +240,16 @@ a.accordion-toggle:hover {
     color: white !important;
     /*font-size: 1.15em;*/
     background-color: orangered;
-    border-top: solid 2px orangered;
-    border-bottom: solid 2px orangered;
 }
 
 .nav-sep {
     padding-top: 5px;
     padding-bottom: 5px;
     font-family: 'Comfortaa', cursive;
-    border-top: solid 2px orangered;
-    border-bottom: solid 2px orangered;
-    background-color: white;
+    /*border-top: solid 2px orangered;*/
+    /*border-bottom: solid 2px orangered;*/
+    /*background-color: white;*/
+    /*color: orangered;*/
     color: orangered;
     padding-left: 0px !important;
     padding-right: 0px !important;
@@ -201,7 +311,6 @@ a.accordion-toggle:hover {
     font-family: 'Comfortaa', cursive;
     color: #616161;
     margin-bottom: 20px;
-    margin-left: 30px;
 }
 
 .tab-in-con {
@@ -247,22 +356,145 @@ a.accordion-toggle:hover {
     margin: 8px !important;
 }
 
-.rotate {
-
-/* Safari */
--webkit-transform: rotate(-90deg) !important;
-
-/* Firefox */
--moz-transform: rotate(-90deg) !important;
-
-/* IE */
--ms-transform: rotate(-90deg) !important;
-
-/* Opera */
--o-transform: rotate(-90deg) !important;
-
-/* Internet Explorer */
-filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3) !important;
-
+.destination-panel-border{
+    border-style: solid;
+    border-width: 2px;
+    margin: 0px;
+    padding: 0 !important;
+    text-align: center;
+    height:450px;
+    font-weight: bold;
+    border-radius: 2%;
 }
 
+span.glyphicon {
+    position: relative;
+    top: 1px;
+    display: inline-block;
+    font-family: 'Glyphicons Halflings';
+    font-style: normal;
+    font-weight: normal;
+    line-height: 2;
+    margin-right: 10px;
+}
+
+.destination-header.glyphicon {
+    font-size: 1.4em;
+    margin-right: 10px;
+    color:  orangered;
+}
+
+button.destination-btn-default {
+    color: #333;
+    background-color: lightskyblue;
+    border-color: black;
+    padding-right: 6%;
+    padding-left: 2%
+}
+
+span.destination-glyphicon-map-marker  {
+   font-size: 3em;
+   font-weight: bold;
+}
+
+
+div.destination-header {
+    margin-top: 0;
+    margin-bottom: 8px;
+    padding: 10px;
+    background-color: lightgray;
+    border-radius: 7px 7px 0 0;
+    text-align: center;
+    text-decoration-color: orangered;
+}
+
+div.destination-body-text  {
+    text-align: left;
+    margin-left: 30px;
+    padding-top: 55px;
+    width: 200px;
+}
+
+.destination-type {
+    padding-bottom: 14px;
+    background-color: lightskyblue;
+}
+
+.destination-type img {
+    max-height: 40px;
+}
+
+.destination-type button {
+    position: relative;
+}
+
+.destination-type button:hover {
+    background-color: orangered;
+    -webkit-box-shadow: inset 0 0 8px 1px rgba(51,51,51,1);
+    -moz-box-shadow: inset 0 0 8px 1px rgba(51,51,51,1);
+    box-shadow: inset 0 0 8px 1px rgba(51,51,51,1);
+}
+
+.destination-type button:hover img {
+    opacity: .6;
+}
+
+.destination-type .destination-type-text {
+    position: absolute;
+    left: 0;
+    right: 0;
+    color: white;
+    font-size: 1.2em;
+    visibility: hidden;
+    top: 25%;
+}
+
+.type-button:hover .destination-type-text {
+    visibility: visible;
+}
+
+.add-destination {
+    text-align: right;
+    margin-right: 10px;
+    margin-bottom: 8px;
+}
+
+.address-form {
+    display: block;
+    margin-top: 20px;
+    margin-left: 20px;
+    width: 85%;
+    height: 34px;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #555;
+    background-color: #fff;
+    border: 1px solid orangered;
+    border-radius: 7px;
+ }
+
+.input-forms {
+    text-align: center;
+    height: 200px;
+    width: 100%;
+}
+
+.pad-but {
+    margin-top:10px;
+    padding: 2px;
+}
+.marg-input {
+    margin-bottom:10px;
+}
+
+.pet-save-but {
+    background-color: #666666;
+    color: white;
+}
+
+.back-style {
+    font-family: Segoe UI Semibold;
+    text-decoration: underline;
+
+}
